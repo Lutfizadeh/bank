@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('bank_code')->constrained('banks')->cascadeOnDelete();
+            $table->foreignId('bank_id')->constrained('banks')->cascadeOnDelete();
             $table->string('type');
             $table->string('account_number');
             $table->string('account_name')->default('Test Nama Pengguna');

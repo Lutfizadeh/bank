@@ -25,24 +25,26 @@ class UserResource extends Resource
         return $form
             ->schema([
                 Section::make('User')
-                ->schema([
-                    Forms\Components\TextInput::make('name')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('email')
+                            ->email()
+                            ->required()
+                            ->maxLength(255),
+                        // Forms\Components\DateTimePicker::make('email_verified_at'),
+                        Forms\Components\TextInput::make('password')
+                            ->password()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('balance')
                         ->required()
-                        ->maxLength(255),
-                    Forms\Components\TextInput::make('email')
-                        ->email()
-                        ->required()
-                        ->maxLength(255),
-                    // Forms\Components\DateTimePicker::make('email_verified_at'),
-                    Forms\Components\TextInput::make('password')
-                        ->password()
-                        ->required()
-                        ->maxLength(255),
-                    Forms\Components\FileUpload::make('profile_picture')
-                        ->label('Profile Picture')
-                        ->image()
-                        ->directory('profile_pictures')
-                ])
+                            ->maxLength(255),
+                        Forms\Components\FileUpload::make('profile_picture')
+                            ->label('Profile Picture')
+                            ->image()
+                            ->directory('profile_pictures'),
+                    ])
             ]);
     }
 
@@ -54,6 +56,9 @@ class UserResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('balance')
                     ->searchable()
                     ->sortable(),
                 // Tables\Columns\TextColumn::make('email_verified_at')

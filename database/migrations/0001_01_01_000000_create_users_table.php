@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->unsignedInteger('balance')->nullable();
+            $table->integer('balance')->default(10000);
             $table->string('profile_picture')->nullable();
             // $table->string('telephone')->unique();
             // $table->date('birth_date');

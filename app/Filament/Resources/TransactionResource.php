@@ -26,8 +26,8 @@ class TransactionResource extends Resource
             ->schema([
                 Section::make('Transaction')
                     ->schema([
-                        Forms\Components\Select::make('bank_code')
-                            ->relationship('bank', 'code')
+                        Forms\Components\Select::make('bank')
+                            ->relationship('bank', 'bank_name')
                             ->required()
                             ->searchable()
                             ->preload(),
@@ -50,7 +50,7 @@ class TransactionResource extends Resource
                 Tables\Columns\TextColumn::make('type')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('bank_code')
+                Tables\Columns\TextColumn::make('bank.bank_code')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('account_number')
