@@ -13,15 +13,18 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('bank_id')->constrained('banks')->cascadeOnDelete();
             $table->string('type');
             $table->string('account_number');
             $table->string('account_name')->default('Test Nama Pengguna');
-            $table->unsignedInteger('amount');
+            $table->integer('amount');
+            $table->string('description');
             $table->string('status')->default('Pending');
-            $table->unsignedInteger('current')->nullable();
-            $table->unsignedInteger('add')->nullable();
-            $table->unsignedInteger('final')->nullable();
+            $table->integer('current')->nullable();
+            $table->integer('add')->nullable();
+            $table->integer('final')->nullable();
+            $table->date('date')->default(now());
             $table->timestamps();
         });
     }

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('banks', function (Blueprint $table) {
             $table->id();
-            $table->string('bank_code')->unique();
-            $table->string('bank_name')->unique();
+            $table->string('bank_code');
+            $table->string('bank_name');
             $table->string('type');
             $table->timestamps();
         });

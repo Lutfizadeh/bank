@@ -16,6 +16,6 @@ class Transaction extends Model
 
     public function bank(): BelongsTo
     {
-        return $this->belongsTo(Bank::class, 'bank_code');
+        return $this->belongsTo(Bank::class,);
     }
 }
