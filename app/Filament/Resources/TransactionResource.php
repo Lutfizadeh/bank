@@ -2,16 +2,18 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use App\Models\Transaction;
+use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Actions\Action;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TransactionResource\Pages;
 use App\Filament\Resources\TransactionResource\RelationManagers;
-use App\Models\Transaction;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TransactionResource extends Resource
 {
@@ -35,31 +37,101 @@ class TransactionResource extends Resource
                         'transfer' => 'Transfer',
                     ])
                     ->required(),
-                Forms\Components\TextInput::make('account_number')
-                    ->required()
-                    ->maxLength(255),
-                // Forms\Components\TextInput::make('account_name')
-                //     ->required()
-                //     ->maxLength(255)
-                //     ->default('Test Nama Pengguna'),
-                Forms\Components\TextInput::make('amount')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('description')
-                    ->required()
-                    ->maxLength(255),
-                // Forms\Components\TextInput::make('status')
-                //     ->required()
-                //     ->maxLength(255)
-                //     ->default('Pending'),
-                // Forms\Components\TextInput::make('current')
-                //     ->numeric(),
-                // Forms\Components\TextInput::make('add')
-                //     ->numeric(),
-                // Forms\Components\TextInput::make('final')
-                //     ->numeric(),
-                // Forms\Components\DatePicker::make('date')
-                //     ->required(),
+                Forms\Components\Grid::make()
+                    ->schema([
+                        Forms\Components\TextInput::make('account_number')
+                            ->required()
+                            ->maxLength(255)
+                            ->live(debounce: 500)
+                            ->afterStateUpdated(function ($state, $set) {
+                                // Reset account name when account number changes
+                                $set('account_name', null);
+                            })
+                            ->suffixAction(
+                                Action::make('checkAccount')
+                                    ->icon('heroicon-o-magnifying-glass')
+                                    ->label('Cek')
+                                    ->tooltip('Cek Nama Rekening')
+                                    ->action(function ($state, $set, $get) {
+                                        // Validasi input
+                                        if (empty($state)) {
+                                            $set('account_name', null);
+                                            $set('validation_message', 'Nomor rekening tidak boleh kosong');
+                                            return;
+                                        }
+
+                                        if (empty($get('bank_id'))) {
+                                            $set('account_name', null);
+                                            $set('validation_message', 'Silakan pilih bank terlebih dahulu');
+                                            return;
+                                        }
+
+                                        try {
+                                            // Get bank code dari bank id
+                                            $bankId = $get('bank_id');
+                                            $bank = \App\Models\Bank::find($bankId);
+
+                                            if (!$bank || empty($bank->bank_code)) {
+                                                $set('account_name', null);
+                                                $set('validation_message', 'Bank tidak ditemukan atau tidak memiliki kode bank');
+                                                return;
+                                            }
+
+                                            // Ganti URL API sesuai dengan API yang Anda gunakan
+                                            $response = Http::asForm()->post(env('API_URL').'/cek_rekening', [
+                                                'api_key' => env('API_KEY'),
+                                                'bank_code' => $bank->bank_code,
+                                                'account_number' => $state,
+                                            ]);
+
+                                            // dd('Status code: ' . $response->status());
+                                            // dd('Response body: ' . $response->body());
+
+                                            if ($response->successful()) {
+                                                $data = $response->json();
+                                                $data = $data['data'] ?? null;
+                                                // dd($data);
+                                                // Perbarui kolom account_name dengan data dari API
+                                                if (isset($data['nama_pemilik'])) {
+                                                    $set('account_name', $data['nama_pemilik']);
+                                                    $set('validation_message', 'Berhasil mendapatkan nama rekening');
+                                                } else {
+                                                    $set('account_name', null);
+                                                    $set('validation_message', 'Nama rekening tidak ditemukan');
+                                                }
+                                            } else {
+                                                $set('account_name', null);
+                                                $set('validation_message', 'Gagal memeriksa nama rekening: ' . ($response->json()['message'] ?? 'Error tidak diketahui'));
+                                            }
+                                        } catch (\Exception $e) {
+                                            $set('account_name', null);
+                                            $set('validation_message', 'Terjadi kesalahan: ' . $e->getMessage());
+                                        }
+                                    })
+                                ),
+                        Forms\Components\TextInput::make('account_name')
+                            ->required()
+                            ->maxLength(255)
+                            ->readOnly(true),
+                        Forms\Components\TextInput::make('amount')
+                            ->required()
+                            ->numeric(),
+                        Forms\Components\TextInput::make('description')
+                            ->required()
+                            ->maxLength(255),
+                        // Forms\Components\TextInput::make('status')
+                        //     ->required()
+                        //     ->maxLength(255)
+                        //     ->default('Pending'),
+                        // Forms\Components\TextInput::make('current')
+                        //     ->numeric(),
+                        // Forms\Components\TextInput::make('add')
+                        //     ->numeric(),
+                        // Forms\Components\TextInput::make('final')
+                        //     ->numeric(),
+                        // Forms\Components\DatePicker::make('date')
+                        //     ->required(),
+                    ])
             ]);
     }
 

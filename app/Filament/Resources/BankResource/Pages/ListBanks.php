@@ -19,8 +19,8 @@ class ListBanks extends ListRecords
             Action::make('Import Banks from API')
                 ->action(function () {
                     try {
-                        $response = Http::asForm()->post('https://atlantich2h.com/transfer/bank_list', [
-                            'api_key' => 'C5V41sY3QFRga2MunZkbw2v4Jg3cjsjtCItD0lKNhCroQj5PW2Y8ocVuuqPLTCFkzXtofDd7oQBX4Ww7cdZEWnCtHLJrv7ZgAZE2'
+                        $response = Http::asForm()->post(env('API_URL').'/bank_list', [
+                            'api_key' => env('API_KEY'),
                         ]);
 
                         // dd('Status code: ' . $response->status());

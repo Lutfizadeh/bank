@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('bank_id')->constrained('banks')->cascadeOnDelete();
             $table->string('type');
             $table->string('account_number');
-            $table->string('account_name')->default('Test Nama Pengguna');
+            $table->string('account_name');
             $table->integer('amount');
             $table->string('description');
             $table->string('status')->default('Pending');
