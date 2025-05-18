@@ -9,6 +9,7 @@ use Filament\Tables\Table;
 use App\Models\Transaction;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Http;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Actions\Action;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -78,7 +79,7 @@ class TransactionResource extends Resource
                                             }
 
                                             // Ganti URL API sesuai dengan API yang Anda gunakan
-                                            $response = Http::asForm()->post(env('API_URL').'/cek_rekening', [
+                                            $response = Http::asForm()->post(env('API_URL') . '/cek_rekening', [
                                                 'api_key' => env('API_KEY'),
                                                 'bank_code' => $bank->bank_code,
                                                 'account_number' => $state,
@@ -108,7 +109,7 @@ class TransactionResource extends Resource
                                             $set('validation_message', 'Terjadi kesalahan: ' . $e->getMessage());
                                         }
                                     })
-                                ),
+                            ),
                         Forms\Components\TextInput::make('account_name')
                             ->required()
                             ->maxLength(255)
@@ -196,6 +197,50 @@ class TransactionResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('proses')
+                    ->label('Proses')
+                    ->icon('heroicon-o-check')
+                    ->requiresConfirmation()
+                    ->color('success')
+                    ->visible(fn($record) => $record->status === 'Pending')
+                    ->action(function ($record) {
+                        $user = $record->user;
+                        $current = $user->balance;
+                        $amount = $record->amount;
+
+                        if ($record->type === 'topup') {
+                            $final = $current + $amount;
+                            $record->add = $amount;
+                        } elseif ($record->type === 'transfer') {
+                            if ($current < $amount) {
+                                return Notification::make()
+                                    ->title('Saldo tidak cukup!')
+                                    ->danger()
+                                    ->send();
+                            }
+                            $final = $current - $amount;
+                            $record->add = -$amount;
+                        } else {
+                            return Notification::make()
+                                ->title('Tipe transaksi tidak valid!')
+                                ->warning()
+                                ->send();
+                        }
+
+                        $user->balance = $final;
+                        $user->save();
+
+                        $record->current = $current;
+                        $record->status = 'Success';
+                        $record->date = now();
+                        $record->final = $final;
+                        $record->save();
+
+                        return Notification::make()
+                            ->title('Transaksi berhasil diproses!')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
