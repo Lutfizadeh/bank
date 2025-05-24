@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('bank_id')->constrained('banks')->cascadeOnDelete();
+            $table->string('ref_id');
             $table->string('type');
             $table->string('account_number');
             $table->string('account_name');

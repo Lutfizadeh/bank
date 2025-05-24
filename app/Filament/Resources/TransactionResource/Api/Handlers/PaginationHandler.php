@@ -1,18 +1,19 @@
 <?php
-namespace App\Filament\Resources\UserResource\Api\Handlers;
+namespace App\Filament\Resources\TransactionResource\Api\Handlers;
 
 use Illuminate\Http\Request;
 use Rupadana\ApiService\Http\Handlers;
 use Spatie\QueryBuilder\QueryBuilder;
-use App\Filament\Resources\UserResource;
-use App\Filament\Resources\UserResource\Api\Transformers\UserTransformer;
+use App\Filament\Resources\TransactionResource;
+use App\Filament\Resources\TransactionResource\Api\Transformers\TransactionTransformer;
 
 class PaginationHandler extends Handlers {
     public static string | null $uri = '/';
-    public static string | null $resource = UserResource::class;
+    public static string | null $resource = TransactionResource::class;
+
 
     /**
-     * List of User
+     * List of Transaction
      *
      * @param Request $request
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
@@ -29,6 +30,6 @@ class PaginationHandler extends Handlers {
         ->paginate(request()->query('per_page'))
         ->appends(request()->query());
 
-        return UserTransformer::collection($query);
+        return TransactionTransformer::collection($query);
     }
 }

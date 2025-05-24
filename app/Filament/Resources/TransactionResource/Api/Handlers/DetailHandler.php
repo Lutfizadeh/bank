@@ -1,26 +1,25 @@
 <?php
 
-namespace App\Filament\Resources\UserResource\Api\Handlers;
+namespace App\Filament\Resources\TransactionResource\Api\Handlers;
 
 use App\Filament\Resources\SettingResource;
-use App\Filament\Resources\UserResource;
+use App\Filament\Resources\TransactionResource;
 use Rupadana\ApiService\Http\Handlers;
 use Spatie\QueryBuilder\QueryBuilder;
 use Illuminate\Http\Request;
-use App\Filament\Resources\UserResource\Api\Transformers\UserTransformer;
+use App\Filament\Resources\TransactionResource\Api\Transformers\TransactionTransformer;
 
 class DetailHandler extends Handlers
 {
     public static string | null $uri = '/{id}';
-    public static string | null $resource = UserResource::class;
-
+    public static string | null $resource = TransactionResource::class;
 
 
     /**
-     * Show User
+     * Show Transaction
      *
      * @param Request $request
-     * @return UserTransformer
+     * @return TransactionTransformer
      */
     public function handler(Request $request)
     {
@@ -35,6 +34,6 @@ class DetailHandler extends Handlers
 
         if (!$query) return static::sendNotFoundResponse();
 
-        return new UserTransformer($query);
+        return new TransactionTransformer($query);
     }
 }

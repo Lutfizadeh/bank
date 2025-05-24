@@ -7,7 +7,9 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Transaction;
+use Illuminate\Support\Str;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,11 +26,16 @@ class TransactionResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $userId = Auth::user()->id;
+        $userField = $userId === 1
+            ? Forms\Components\Select::make('user_id')
+                ->relationship('user', 'name')
+                ->required()
+            : Forms\Components\Hidden::make('user_id')
+                ->default($userId);
         return $form
             ->schema([
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->required(),
+                $userField,
                 Forms\Components\Select::make('bank_id')
                     ->relationship('bank', 'bank_name')
                     ->required(),
@@ -92,7 +99,6 @@ class TransactionResource extends Resource
                                                 $data = $response->json();
                                                 $data = $data['data'] ?? null;
                                                 // dd($data);
-                                                // Perbarui kolom account_name dengan data dari API
                                                 if (isset($data['nama_pemilik'])) {
                                                     $set('account_name', $data['nama_pemilik']);
                                                     $set('validation_message', 'Berhasil mendapatkan nama rekening');
@@ -120,32 +126,25 @@ class TransactionResource extends Resource
                         Forms\Components\TextInput::make('description')
                             ->required()
                             ->maxLength(255),
-                        // Forms\Components\TextInput::make('status')
-                        //     ->required()
-                        //     ->maxLength(255)
-                        //     ->default('Pending'),
-                        // Forms\Components\TextInput::make('current')
-                        //     ->numeric(),
-                        // Forms\Components\TextInput::make('add')
-                        //     ->numeric(),
-                        // Forms\Components\TextInput::make('final')
-                        //     ->numeric(),
-                        // Forms\Components\DatePicker::make('date')
-                        //     ->required(),
                     ])
             ]);
     }
 
     public static function table(Table $table): Table
     {
+        $userId = Auth::user()->id;
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->visible($userId === 1),
                 Tables\Columns\TextColumn::make('bank.bank_name')
                     ->numeric()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('ref_id')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\BadgeColumn::make('type')
                     ->icons([
                         'heroicon-o-arrow-down-circle' => 'topup',
@@ -166,7 +165,15 @@ class TransactionResource extends Resource
                     ->money('IDR'),
                 Tables\Columns\TextColumn::make('description')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('status')
+                Tables\Columns\BadgeColumn::make('status')
+                ->icons([
+                        'heroicon-o-arrow-down-circle' => 'Success',
+                        'heroicon-o-arrow-up-circle' => 'Failed',
+                    ])
+                    ->colors([
+                        'success' => 'Success',
+                        'danger' => 'Failed',
+                    ])
                     ->searchable(),
                 Tables\Columns\TextColumn::make('current')
                     ->numeric()
@@ -196,13 +203,12 @@ class TransactionResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('proses')
                     ->label('Proses')
                     ->icon('heroicon-o-check')
                     ->requiresConfirmation()
                     ->color('success')
-                    ->visible(fn($record) => $record->status === 'Pending')
+                    ->visible(fn($record) => $record->status === 'Pending' && $userId === 1)
                     ->action(function ($record) {
                         $user = $record->user;
                         $current = $user->balance;
