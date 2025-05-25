@@ -38,8 +38,13 @@ class UserResource extends Resource
                             ->password()
                             ->maxLength(255),
                         Forms\Components\TextInput::make('balance')
-                        ->required()
+                            ->required()
                             ->maxLength(255),
+                        Forms\Components\Select::make('roles')
+                            ->relationship('roles', 'name')
+                            ->multiple()
+                            ->preload()
+                            ->searchable(),
                         Forms\Components\FileUpload::make('profile_picture')
                             ->label('Profile Picture')
                             ->image()
@@ -59,6 +64,9 @@ class UserResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('balance')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('roles.name')
                     ->searchable()
                     ->sortable(),
                 // Tables\Columns\TextColumn::make('email_verified_at')

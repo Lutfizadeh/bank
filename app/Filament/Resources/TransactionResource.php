@@ -28,11 +28,9 @@ class TransactionResource extends Resource
     {
         $userId = Auth::user()->id;
         $userField = $userId === 1
-            ? Forms\Components\Select::make('user_id')
-                ->relationship('user', 'name')
-                ->required()
-            : Forms\Components\Hidden::make('user_id')
-                ->default($userId);
+            ? Forms\Components\Select::make('user_id')->relationship('user', 'name')->required()
+            : Forms\Components\Hidden::make('user_id')->default($userId);
+
         return $form
             ->schema([
                 $userField,
@@ -166,7 +164,7 @@ class TransactionResource extends Resource
                 Tables\Columns\TextColumn::make('description')
                     ->searchable(),
                 Tables\Columns\BadgeColumn::make('status')
-                ->icons([
+                    ->icons([
                         'heroicon-o-arrow-down-circle' => 'Success',
                         'heroicon-o-arrow-up-circle' => 'Failed',
                     ])
