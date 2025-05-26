@@ -187,15 +187,18 @@ class TransactionResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('date')
                     ->date()
-                    ->sortable(),
+                    ->sortable()
+                    ->timezone('Asia/Jakarta'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->timezone('Asia/Jakarta'),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->timezone('Asia/Jakarta'),
             ])
             ->filters([
                 //

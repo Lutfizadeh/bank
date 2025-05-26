@@ -60,12 +60,14 @@ class BankResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->timezone('Asia/Jakarta'),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->timezone('Asia/Jakarta'),
             ])
             ->filters([
                 //

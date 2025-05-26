@@ -75,11 +75,13 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->timezone('Asia/Jakarta'),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->timezone('Asia/Jakarta'),
                 Tables\Columns\ImageColumn::make('profile_picture')
                     ->label('Profile Picture')
             ])
