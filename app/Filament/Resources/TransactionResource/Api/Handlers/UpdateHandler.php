@@ -2,6 +2,7 @@
 namespace App\Filament\Resources\TransactionResource\Api\Handlers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Rupadana\ApiService\Http\Handlers;
 use App\Filament\Resources\TransactionResource;
 use App\Filament\Resources\TransactionResource\Api\Requests\UpdateTransactionRequest;
@@ -28,16 +29,30 @@ class UpdateHandler extends Handlers {
      */
     public function handler(UpdateTransactionRequest $request)
     {
+        $user = Auth::user();
+        if ($user && $user->id !== 1) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        
         $id = $request->route('id');
 
         $model = static::getModel()::find($id);
 
-        if (!$model) return static::sendNotFoundResponse();
+        if (!$model) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Transaction not found',
+            ], 404);
+        }
 
         $model->fill($request->all());
 
         $model->save();
 
-        return static::sendSuccessResponse($model, "Successfully Update Resource");
+        return response()->json([
+                'success' => true,
+                'message' => 'Transaction updated successfully',
+                'data' => $model
+            ], 201);
     }
 }

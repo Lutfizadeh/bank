@@ -1,12 +1,15 @@
 <?php
+
 namespace App\Filament\Resources\TransactionResource\Api\Handlers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Rupadana\ApiService\Http\Handlers;
 use App\Filament\Resources\TransactionResource;
 use App\Filament\Resources\TransactionResource\Api\Requests\CreateTransactionRequest;
 
-class CreateHandler extends Handlers {
+class CreateHandler extends Handlers
+{
     public static string | null $uri = '/';
     public static string | null $resource = TransactionResource::class;
 
@@ -15,7 +18,8 @@ class CreateHandler extends Handlers {
         return Handlers::POST;
     }
 
-    public static function getModel() {
+    public static function getModel()
+    {
         return static::$resource::getModel();
     }
 
@@ -27,12 +31,38 @@ class CreateHandler extends Handlers {
      */
     public function handler(CreateTransactionRequest $request)
     {
-        $model = new (static::getModel());
+        $user = Auth::user();
+        $data = $request->validated();
 
-        $model->fill($request->all());
+        // Auto assign user_id
+        if ($user && $user->id !== 1) {
+            $data['user_id'] = $user->id;
+        }
 
-        $model->save();
+        // Set default values jika tidak ada
+        $data['status'] = $data['status'] ?? 'pending';
+        $data['date'] = $data['date'] ?? now();
+        $data['ref_id'] = $data['ref_id'] ?? 'TRX-' . time() . '-' . rand(1000, 9999);
 
-        return static::sendSuccessResponse($model, "Successfully Create Resource");
+        // Calculate balance jika perlu
+        if (!isset($data['current']) && $user) {
+            $data['current'] = $user->balance ?? 0;
+            $data['add'] = $data['amount'];
+            $data['final'] = $data['current'] + $data['add'];
+        }
+
+        try {
+            $model = static::getModel()::create($data);
+            return response()->json([
+                'success' => true,
+                'message' => 'Transaction created successfully',
+                'data' => $model
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create transaction: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
