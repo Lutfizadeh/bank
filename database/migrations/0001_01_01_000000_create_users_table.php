@@ -19,10 +19,6 @@ return new class extends Migration
             $table->string('password');
             $table->integer('balance')->default(0);
             $table->string('profile_picture')->nullable();
-            // $table->string('telephone')->unique();
-            // $table->date('birth_date');
-            // $table->date('gender');
-            // $table->string('address')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
