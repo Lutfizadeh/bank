@@ -170,6 +170,7 @@ class TransactionResource extends Resource
                     ])
                     ->colors([
                         'success' => 'Success',
+                        'warning' => 'Pending',
                         'danger' => 'Failed',
                     ])
                     ->searchable(),

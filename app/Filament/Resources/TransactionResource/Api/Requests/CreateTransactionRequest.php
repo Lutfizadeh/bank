@@ -30,12 +30,12 @@ class CreateTransactionRequest extends FormRequest
             
             'bank_id' => 'required|exists:banks,id',
             'ref_id' => 'nullable|string|unique:transactions,ref_id', // Biasanya di-generate otomatis
-            'type' => 'required|in:credit,debit,transfer', // Sesuaikan dengan enum Anda
+            'type' => 'required|in:topup,transfer', // Sesuaikan dengan enum Anda
             'account_number' => 'required|string',
             'account_name' => 'required|string',
             'amount' => 'required|numeric|min:1',
             'description' => 'nullable|string|max:255',
-            'status' => 'nullable|in:pending,success,failed', // Default bisa pending
+            'status' => 'nullable|in:Pending,Success,Failed', // Default bisa pending
             
             // Field balance biasanya di-calculate otomatis
             'current' => 'nullable|numeric',

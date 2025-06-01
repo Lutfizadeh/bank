@@ -40,7 +40,7 @@ class CreateHandler extends Handlers
         }
 
         // Set default values jika tidak ada
-        $data['status'] = $data['status'] ?? 'pending';
+        $data['status'] = $data['status'] ?? 'Pending';
         $data['date'] = $data['date'] ?? now();
         $data['ref_id'] = $data['ref_id'] ?? 'TRX-' . time() . '-' . rand(1000, 9999);
 
