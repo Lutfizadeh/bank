@@ -16,7 +16,7 @@ class ListBanks extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        if(Auth::user()->id === 1) {
+        if(Auth::user()->hasRoles = "super_admin") {
             return [
                 Action::make('Import Banks from API')
                     ->action(function () {
