@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# Running Test
-vendor/bin/pest --ci

@@ -1,6 +1,0 @@
-#!/bin/sh
-
-# Fix Styling
-vendor/bin/pint
-
-git add . 
