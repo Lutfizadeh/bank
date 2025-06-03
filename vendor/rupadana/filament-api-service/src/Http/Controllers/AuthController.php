@@ -42,39 +42,6 @@ class AuthController extends Controller
     }
 
     /**
-     * Register
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function register(Request $request)
-    {
-        // Validate the incoming request data
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'], // Added password validation rules
-        ]);
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        $user->assignRole('Member'); // Assign default role
-
-        // Create token and return response
-        return response()->json(
-            [
-                'success' => true,
-                'message' => 'Register success.',
-                'token' => $user->createToken($request->header('User-Agent'), ['*'])->plainTextToken,
-            ],
-            201
-        );
-    }
-
-    /**
      * Logout
      *
      * @return \Illuminate\Http\JsonResponse
