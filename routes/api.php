@@ -9,3 +9,4 @@ Route::middleware('api')->get('/test', function (Request $request) {
 });
 
 Route::post('/auth/register', [AuthController::class, 'register']);
+Route::get('/auth/profile', [AuthController::class, 'profile'])->middleware('auth:sanctum');
